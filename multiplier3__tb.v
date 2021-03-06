@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module multiplier2__tb();
+module multiplier3__tb();
 
    parameter no_of_tests = 100;
 
