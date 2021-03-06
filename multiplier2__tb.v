@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module multiplier1__tb();
+module multiplier2__tb();
 
    parameter no_of_tests = 100;
 
@@ -60,7 +60,7 @@ module multiplier1__tb();
    end
 
 
-    multiplier1 uut (        // unsigned unit
+    multiplier2 uut (        // unsigned unit
         .clk(clk),
         .start(start),
         .A(A),
