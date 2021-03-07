@@ -16,7 +16,6 @@ module multiplier3(
 //----------------------------------- register deceleration
 reg [7:0] Multiplicand ;
 reg [3:0]  counter;
-reg carry;
 //-------------------------------------------------------
 
 //------------------------------------- wire deceleration
