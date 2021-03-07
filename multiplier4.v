@@ -16,7 +16,7 @@ module multiplier4 #(parameter nb = 8 )
 
 //----------------------------------- register deceleration
 reg [nb-1:0] Multiplicand ;
-reg counter;
+reg [nb-1:0] counter;
 //-------------------------------------------------------
 
 //------------------------------------- wire deceleration
@@ -24,31 +24,29 @@ wire product_write_enable;
 wire [nb:0] adder_output;
 wire [nb-1:0] constantone;
 wire [nb-1:0] constantzero;
+wire [nb-1:0] allone;
 //---------------------------------------------------------
 
 //-------------------------------------- combinational logic
 				//checking whether that it's the last partial-product or not
 				//using sign extension to make sure that overflow will not happen
 assign constantzero=0;
-assign constantone=1;
-assign adder_output = (counter>=nb)? {Product[2*nb-1],Product[2*nb-1:nb]} - {Multiplicand[nb-1],Multiplicand} : {Multiplicand[nb-1],Multiplicand} + {Product[2*nb-1],Product[2*nb-1:nb]} ;
+assign allone={nb{1'b1}};
+assign adder_output = (counter <= 1)? {Product[2*nb-1],Product[2*nb-1:nb]} - {Multiplicand[nb-1],Multiplicand} : {Multiplicand[nb-1],Multiplicand} + {Product[2*nb-1],Product[2*nb-1:nb]} ;
 assign product_write_enable = Product[0];
-assign ready = counter > nb;
+assign ready = counter ==0;
 //---------------------------------------------------------
-initial begin
-	counter<=0;
-end
 //--------------------------------------- sequential Logic
 always @ (posedge clk)
 
    if(start) begin
-      counter <= constantone ;
+      counter <= allone ;
       Product <= {constantzero,B};
       Multiplicand <= A;
    end
 
    else if(! ready) begin
-         counter <= counter + constantone;
+         counter <= counter >>1;
          //using signed shift to make sure that sign extension is properly executed
          Product <= {Product[2*nb-1],Product[2*nb-1:1]};
 			if(product_write_enable)begin
