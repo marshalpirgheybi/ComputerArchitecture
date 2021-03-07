@@ -45,6 +45,7 @@ always @ (posedge clk)
          counter <= counter + 4'b1;
          //using signed shift to make sure that sign extension is properly executed
          Product <= Product >>> 1;
+         
 			if(product_write_enable)begin
 				Product <= {adder_output,Product[7:1]};    
 			end
