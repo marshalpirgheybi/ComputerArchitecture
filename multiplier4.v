@@ -1,76 +1,58 @@
-module multiplier3 #(
-    parameter n=8
-    ) (
+`timescale 1ns/1ns 
+module multiplier4 #(parameter nb = 8 )
+(
 //-----------------------Port directions and deceleration
    input clk,  
    input start,
-   input [n-1:0] A, 
-   input [n-1:0] B, 
-   output reg [2*n-1:0] Product,
+   input [nb-1:0] A, 
+   input [nb-1:0] B, 
+   output reg [2*nb-1:0] Product,
    output ready
     );
+
+
 
 //------------------------------------------------------
 
 //----------------------------------- register deceleration
-reg [n-1:0] Multiplicand ;
-reg [n-1:0]  counter;
-reg [n-1:0] const1;
-reg [2*n-1:0] const3;
+reg [nb-1:0] Multiplicand ;
+reg counter;
 //-------------------------------------------------------
 
 //------------------------------------- wire deceleration
 wire product_write_enable;
-wire [n:0] adder_output1,adder_output2,adder_output3,adder_output4;
+wire [nb:0] adder_output;
+wire [nb-1:0] constantone;
+wire [nb-1:0] constantzero;
 //---------------------------------------------------------
 
 //-------------------------------------- combinational logic
-assign adder_output1 = {~Multiplicand[n-1],Multiplicand[n-2:0]} + Product[2*n-1:n];
-assign adder_output2 = const1 + Product[15:8];
-assign adder_output3 = {Multiplicand[n-1],~Multiplicand[n-2:0]} + Product[2*n-1:n];
-assign adder_output4 = ~const1 + Product[2*n-1:n];
+				//checking whether that it's the last partial-product or not
+				//using sign extension to make sure that overflow will not happen
+assign constantzero=0;
+assign constantone=1;
+assign adder_output = (counter>=nb)? {Product[2*nb-1],Product[2*nb-1:nb]} - {Multiplicand[nb-1],Multiplicand} : {Multiplicand[nb-1],Multiplicand} + {Product[2*nb-1],Product[2*nb-1:nb]} ;
 assign product_write_enable = Product[0];
-assign ready = counter==n;
-
+assign ready = counter > nb;
 //---------------------------------------------------------
 initial begin
-    const1=0;
-    const1[n-1]=1;
-    const3=0;
-    const3[2*n-1]=1;
-    const3[n]=1;
+	counter<=0;
 end
 //--------------------------------------- sequential Logic
 always @ (posedge clk)
 
    if(start) begin
-      counter <= n'h0 ;
-      Product <= {n'b0,B};
+      counter <= constantone ;
+      Product <= {constantzero,B};
       Multiplicand <= A;
    end
 
    else if(! ready) begin
-         counter <= counter + n'b1;
+         counter <= counter + constantone;
          //using signed shift to make sure that sign extension is properly executed
-         Product <= Product >> 1;
-        if(product_write_enable) begin
-        //checking whether that it's the last partial-product or not
-        if (counter < n-1) begin
-            Product <= {adder_output1,Product[n-1:1]};            
-        end
-        else begin
-            Product <= {adder_output3,Product[n-1:1]}+const3;            
-        end
-		  end
-		  else begin
-        //checking whether that it's the last partial-product or not
-        if (counter < n-1) begin
-            Product <= {adder_output2,Product[n-1:1]};            
-        end
-        else begin
-            Product <= {adder_output4,Product[n-1:1]}+const3;            
-        end
-		  end
+         Product <= {Product[2*nb-1],Product[2*nb-1:1]};
+			if(product_write_enable)begin
+				Product <= {adder_output[nb:0],Product[nb-1:1]};
+			end
    end   
-
 endmodule
