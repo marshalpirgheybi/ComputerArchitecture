@@ -15,7 +15,8 @@ module fp_adder(
         wire [25:0] fraction_a;
         wire [25:0] fraction_b;
         wire borrow;
-        wire [7:0] differnece;
+        wire [7:0] differnece_temp;
+        wire [5:0] differnece;
         wire [7:0] real_exp_a;
         wire [7:0] real_exp_b;
         wire [26:0] smaller_fraction;
@@ -27,15 +28,25 @@ module fp_adder(
         wire [22:0] final_fraction;
         wire [7:0] final_exp;
         wire final_sign;
+        wire [7:0] diff_temp;
+        wire [5:0] diff;
         //temp_fraction stands for the fraction that is not rounded yet
         wire [26:0] temp_fraction;
         wire [7:0] temp_exp;
         wire [23:0] temp_fraction2;
+
+
+        //
+        wire [26:0] result1, result3;
+        wire [28:0] result2;
+        wire sticky_bit1;
+        wire [4:0] position;
+
 	
 	//modules	  
-		Shiftmodule uut1 (.A(smaller_fraction), .B(differnece), .result(), .sticky_bit());
-        special_adder uut2 (.a(adder_input1), .b(adder_input2), .result(), .position());
-        Shiftmodule uut3 (.A(uut2.result[27:1]), .B(5'd27 - uut2.position - bigger_exp), .result(), .sticky_bit());
+		Shiftmodule uut1 (.A(smaller_fraction), .B(differnece), .result(result1), .sticky_bit(sticky_bit1));
+        special_adder uut2 (.a(adder_input1), .b(adder_input2), .result(result2), .position(position));
+        Shiftmodule uut3 (.A(result2[27:1]), .B(diff), .result(result3), .sticky_bit());
     
 	 //assignments
         //assigning the sign
@@ -61,29 +72,33 @@ module fp_adder(
         
         //comparing section 
         assign borrow = exp_a >= exp_b;
-        assign differnece = borrow ? (exp_a - exp_b) : (exp_b - exp_a);
+        assign differnece_temp = borrow ? (real_exp_a - real_exp_b) : (real_exp_b - real_exp_a);
+		assign differnece = differnece_temp[5:0];
         assign smaller_fraction = borrow ? {fraction_b, 1'b0} : {fraction_a, 1'b0};
         assign bigger_fraction = borrow ? {fraction_a, 1'b0} : {fraction_b, 1'b0};
-        assign bigger_exp = borrow ? exp_a : exp_b;
+        assign bigger_exp = borrow ? real_exp_a : real_exp_b;
 
         //assigning inputs of adder (LAB1)
-        assign adder_input1 = {sign_smaller, uut1.result[26:1], uut1.sticky_bit};
+        assign adder_input1 = {sign_smaller, result1[26:1], sticky_bit1 | result1[0]};
         assign adder_input2 = {sign_bigger, bigger_fraction};
         
-        
+        //
+        assign diff_temp = 5'd26 - position - bigger_exp;
+        assign diff = diff_temp[5:0];
+
         //making the output of he adder OK
-        assign normalize_checkbit = (bigger_exp + 8'h01) > (5'd27 - uut2.position);
-        assign temp_fraction = normalize_checkbit ? uut2.result[26:0] : uut3.result;
-        assign final_sign = uut2.result[28];
-        assign temp_exp = normalize_checkbit ? (bigger_exp - 5'd26 + uut2.position) : 8'h00;
+        assign normalize_checkbit = ((bigger_exp + 8'h01) > (5'd27 - position)) && (result2 != 29'b0);
+        assign temp_fraction = normalize_checkbit ? result2[26:0] : result3;
+        assign final_sign = result2[28];
+        assign temp_exp = normalize_checkbit ? (bigger_exp - 5'd26 + position) : 8'h00;
 
 
         //rounding
-        assign temp_fraction2 = temp_fraction[3] ? (|temp_fraction[2:0] ? temp_fraction[26:4] + 23'b1 : (temp_fraction[4] ? temp_fraction[26:4] + 23'b1 : temp_fraction[26:4])) : {1'b0,temp_fraction[26:4]};
+        assign temp_fraction2 = temp_fraction[3] ? (temp_fraction[2:0]!=0 ? temp_fraction[26:4] + 23'b1 : (temp_fraction[4] ? temp_fraction[26:4] + 23'b1 : {1'b0, temp_fraction[26:4]})) : {1'b0,temp_fraction[26:4]};
 
         //finalizing
-        assign final_fraction = temp_fraction2[23] ? temp_fraction2[23:1] : temp_fraction[22:0];
-        assign final_exp = temp_fraction[23] ? temp_exp + 8'b1 : temp_exp;
+        assign final_fraction = temp_fraction2[23] ? temp_fraction2[23:1] : temp_fraction2[22:0];
+        assign final_exp = temp_fraction2[23] ? temp_exp + 8'b1 : temp_exp;
 
         //combining
         assign s = {final_sign, final_exp, final_fraction};
