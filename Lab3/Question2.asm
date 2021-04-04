@@ -1,3 +1,7 @@
+	add $a0, $s1, $zero
+	add $a1, $s2, $zero
+	add $v0, $a0, $zero
+	add $v1, $a1, $zero
 	jal GCD	
 	add  $s0, $v0, $zero
 	j Done		
