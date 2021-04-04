@@ -1,6 +1,5 @@
-#s0 is the register containing the number
-	jal fib
-	j Done	
+	jal fib         
+	j Done
 fib:	#defining fib
 	addi $t0, $zero, 1	#initializing
 	addi $a1, $zero , 1 
