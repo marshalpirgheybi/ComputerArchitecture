@@ -1,0 +1,186 @@
+8051 Assembler           Version 1.00   05/03/121 17:11:53    Page 1
+C:\Users\228al\Documents\GitHub\ComputerArchitecture\LAB6\Pulse.A51
+
+
+
+    1 0000              ORG     00
+    2 0000 C2D3         CLR     RS0
+    3 0002 C2D4         CLR     RS1
+    4 0004 9003E8       MOV     DPTR,#1000
+    5 0007 7590FF       MOV     P1,#0FFH
+    6 000A 758901       MOV     TMOD,#01H
+    7 000D              ;R7=LAST        R6=SECOND LAST
+    8 000D 7F00         MOV     R7,#0           ;INITIALIZATION
+    9 000F 7E00         MOV     R6,#0
+   10 0011              MAIN:
+   11 0011 120048               CALL    ROW_DETECTION
+   12 0014 120077               CALL    COLUMN_DETECTION
+   13 0017 12009B               CALL    DELAY
+   14 001A B8031D               CJNE    R0,#3,NO_FUNCTION_NOTZERO
+   15 001D B90205               CJNE    R1,#2,HASH_STAR
+   16 0020 7400                 MOV     A,#0            ;CURRENT_NUMBER
+   17 0022 020040               JMP     NO_FUNCTION
+   18 0025              HASH_STAR:      
+   19 0025 B90105               CJNE    R1,#1,HASH
+   20 0028              STAR:
+   21 0028 EF                   MOV     A,R7
+   22 0029 FA                   MOV     R2,A            ;R2=F/100       
+   23 002A 020011               JMP     MAIN
+   24 002D              HASH:                
+   25 002D EE                   MOV     A,R6
+   26 002E 75F00A               MOV     B,#10
+   27 0031 A4                   MUL     AB
+   28 0032 2F                   ADD     A,R7
+   29 0033 FB                   MOV     R3,A            ;R3=DUTY CYCLE
+   30 0034 1200A6               CALL    SIGNAL
+   31 0037 020011               JMP     MAIN
+   32 003A              NO_FUNCTION_NOTZERO:
+   33 003A E8                   MOV     A,R0
+   34 003B 75F003               MOV     B,#3
+   35 003E A4                   MUL     AB
+   36 003F 29                   ADD     A,R1            ;CURRENT_NUMBER
+   37 0040              NO_FUNCTION:
+   38 0040 8FF0                 MOV     B,R7
+   39 0042 FF                   MOV     R7,A
+   40 0043 AEF0                 MOV     R6,B
+   41 0045 020011               JMP     MAIN
+   42 0048              
+   43 0048              
+   44 0048              
+   45 0048              
+   46 0048              ROW_DETECTION:
+   47 0048 7590FE               MOV     P1,#0FEH
+   48 004B E590                 MOV     A,P1
+   49 004D B4FE1B               CJNE    A,#0FEH,ROW1
+   50 0050 7590FD               MOV     P1,#0FDH
+   51 0053 E590                 MOV     A,P1
+   52 0055 B4FD16               CJNE    A,#0FDH,ROW2
+   53 0058 7590FB               MOV     P1,#0FBH
+   54 005B E590                 MOV     A,P1
+   55 005D B4FB11               CJNE    A,#0FBH,ROW3
+   56 0060 7590F7               MOV     P1,#0F7H
+   57 0063 E590                 MOV     A,P1
+8051 Assembler           Version 1.00   05/03/121 17:11:54    Page 2
+C:\Users\228al\Documents\GitHub\ComputerArchitecture\LAB6\Pulse.A51
+
+
+
+   58 0065 B4F70C               CJNE    A,#0F7H,ROW4
+   59 0068 020048               JMP     ROW_DETECTION:
+   60 006B              ROW1:
+   61 006B 7800                 MOV     R0,#0
+   62 006D 22                   RET
+   63 006E              ROW2:
+   64 006E 7801                 MOV     R0,#1
+   65 0070 22                   RET
+   66 0071              ROW3:
+   67 0071 7802                 MOV     R0,#2
+   68 0073 22                   RET
+   69 0074              ROW4:
+   70 0074 7803                 MOV     R0,#3
+   71 0076 22                   RET                
+   72 0077              
+   73 0077              COLUMN_DETECTION:
+   74 0077 7590EF               MOV     P1,#0EFH
+   75 007A E590                 MOV     A,P1
+   76 007C B4EF13               CJNE    A,#0EFH,COL1
+   77 007F 7590DF               MOV     P1,#0DFH
+   78 0082 E590                 MOV     A,P1
+   79 0084 B4DF0E               CJNE    A,#0DFH,COL2
+   80 0087 7590BF               MOV     P1,#0BFH
+   81 008A E590                 MOV     A,P1
+   82 008C B4BF09               CJNE    A,#0BFH,COL3
+   83 008F 020077               JMP     COLUMN_DETECTION:
+   84 0092              COL1:
+   85 0092 7901                 MOV     R1,#1
+   86 0094 22                   RET
+   87 0095              COL2:
+   88 0095 7902                 MOV     R1,#2
+   89 0097 22                   RET
+   90 0098              COL3:
+   91 0098 7903                 MOV     R1,#3
+   92 009A 22                   RET
+   93 009B                      
+   94 009B              DELAY:
+   95 009B 7DFA                 MOV R5, #250
+   96 009D 7CFA                 AGAIN: MOV R4,#250
+   97 009F                      HERE:
+   98 009F 00                       NOP
+   99 00A0 00                       NOP
+  100 00A1 DCFC                     DJNZ R4, HERE
+  101 00A3 DDF8                     DJNZ R5, AGAIN
+  102 00A5 22                       RET
+  103 00A6              
+  104 00A6              SIGNAL:
+  105 00A6 7F02                 MOV     R7,#2
+  106 00A8 7464                 MOV     A,#100         ;STEPS
+  107 00AA 9B                   SUBB    A,R3
+  108 00AB FC                   MOV     R4,A
+  109 00AC 8BF0                 MOV     B,R3           ;DUTY CYCLE
+  110 00AE ADF0                 MOV     R5,B
+  111 00B0 D280                 SETB    P0.0
+  112 00B2 EA                   MOV     A,R2
+  113 00B3 93                   MOVC    A,@A+DPTR   ;NUMBER OF STEPS
+  114 00B4 0200BD               JMP     AGAIN1
+8051 Assembler           Version 1.00   05/03/121 17:11:54    Page 3
+C:\Users\228al\Documents\GitHub\ComputerArchitecture\LAB6\Pulse.A51
+
+
+
+  115 00B7                      DUTY_CYCLE_FINISHED:
+  116 00B7 C280                         CLR     P0.0
+  117 00B9 8CF0                         MOV     B,R4
+  118 00BB ADF0                         MOV     R5,B
+  119 00BD                      AGAIN1:
+  120 00BD C28C                         CLR     TR0
+  121 00BF 758A00                       MOV     TL0,#0
+  122 00C2 D28C                         SETB    TR0
+  123 00C4                      HERE1:
+  124 00C4 D28C                         SETB    TR0
+  125 00C6 C28C                         CLR     TR0
+  126 00C8 858AF0                       MOV     B,TL0
+  127 00CB B5F0F6                       CJNE    A,B,HERE1
+  128 00CE DDED                         DJNZ    R5,AGAIN1
+  129 00D0 DFE5                         DJNZ    R7,DUTY_CYCLE_FINISHED             
+  130 00D2 22                   RET
+  131 00D3              
+  132 00D3              
+  133 03E8              ORG 1000
+  134 03E8              LOOK_UP_TABLE:                  ;SETTING THE LOOK UP TABLE
+  135 03E8 00                   DB     #00H             ;f=0/100
+  136 03E9 64                   DB     #100             ;f=1/100
+  137 03EA 32                   DB     #50              ;f=2/100
+  138 03EB 21                   DB     #33              ;f=3/100
+  139 03EC 19                   DB     #25              ;f=4/100
+  140 03ED 14                   DB     #20              ;f=5/100
+  141 03EE 11                   DB     #17              ;f=6/100
+  142 03EF 0E                   DB     #14              ;f=7/100
+  143 03F0 0C                   DB     #12              ;f=8/100
+  144 03F1 0B                   DB     #11              ;f=9/100
+
+Defined Symbols:
+
+Defined Labels:
+  AGAIN                                     00009D  157
+  AGAIN1                                    0000BD  189
+  COL1                                      000092  146
+  COL2                                      000095  149
+  COL3                                      000098  152
+  COLUMN_DETECTION                          000077  119
+  DELAY                                     00009B  155
+  DUTY_CYCLE_FINISHED                       0000B7  183
+  HASH                                      00002D  45
+  HASH_STAR                                 000025  37
+  HERE                                      00009F  159
+  HERE1                                     0000C4  196
+  LOOK_UP_TABLE                             0003E8  1000
+  MAIN                                      000011  17
+  NO_FUNCTION                               000040  64
+  NO_FUNCTION_NOTZERO                       00003A  58
+  ROW1                                      00006B  107
+  ROW2                                      00006E  110
+  ROW3                                      000071  113
+  ROW4                                      000074  116
+  ROW_DETECTION                             000048  72
+  SIGNAL                                    0000A6  166
+  STAR                                      000028  40

@@ -1,0 +1,35 @@
+8051 Assembler           Version 1.00   06/05/121 17:41:23    Page 1
+C:\Users\228al\Documents\GitHub\ComputerArchitecture\LAB8\Question1\Code\Q1.A51
+
+
+
+    1 0000 759800       MOV SCON, #00H                  ;Enabling REN & MODE 0
+    2 0003              AGAIN:
+    3 0003 7431         MOV A, #'1'         ; First Number
+    4 0005 111E         ACALL TRANS
+    5 0007 7435         MOV A, #'5'
+    6 0009 111E         ACALL TRANS
+    7 000B 7426         MOV A, #'&'
+    8 000D 111E         ACALL TRANS
+    9 000F              
+   10 000F 7436         MOV A, #'6'         ; Second Number
+   11 0011 111E         ACALL TRANS
+   12 0013 7438         MOV A, #'8'
+   13 0015 111E         ACALL TRANS
+   14 0017 7426         MOV A, #'&'
+   15 0019 111E         ACALL TRANS
+   16 001B              
+   17 001B 020003       JMP AGAIN
+   18 001E              
+   19 001E              TRANS:
+   20 001E F599         MOV SBUF, A
+   21 0020 3099FD       WAIT: JNB TI,WAIT
+   22 0023 C299         CLR TI
+   23 0025 22           RET
+
+Defined Symbols:
+
+Defined Labels:
+  AGAIN                                     000003  3
+  TRANS                                     00001E  30
+  WAIT                                      000020  32

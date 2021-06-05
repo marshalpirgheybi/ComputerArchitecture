@@ -1,0 +1,23 @@
+MOV SCON, #00H                  ;Enabling REN & MODE 0
+AGAIN:
+MOV A, #'1'         ; First Number
+ACALL TRANS
+MOV A, #'5'
+ACALL TRANS
+MOV A, #'&'
+ACALL TRANS
+
+MOV A, #'6'         ; Second Number
+ACALL TRANS
+MOV A, #'8'
+ACALL TRANS
+MOV A, #'&'
+ACALL TRANS
+
+JMP AGAIN
+
+TRANS:
+MOV SBUF, A
+WAIT: JNB TI,WAIT
+CLR TI
+RET
