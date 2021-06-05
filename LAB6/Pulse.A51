@@ -141,4 +141,4 @@ LOOK_UP_TABLE:                  ;SETTING THE LOOK UP TABLE
         DB     #17              ;f=6/100
         DB     #14              ;f=7/100
         DB     #12              ;f=8/100
-        DB     #11              ;f=9/100
+        DB     #11             ;f=9/100
