@@ -1,0 +1,122 @@
+ORG 0
+        JMP MAIN
+ORG 0BH
+        JMP TIMER0
+
+
+
+ORG 100
+MAIN:
+        MOV TMOD,#00100001B             ;TIMER 1 MODE 2, TIMER 0 MODE 1
+        MOV TH1,#-3                     ;9600 BAUD
+        MOV TH0, #A5H
+        MOV TL0, #0FFH                   ; 65535-23040 == A5FF H
+        MOV SCON,#50H                   ;REN enable, MODE 1
+        MOV R0 , #0H
+        MOV IE, #10000010B              ; INTERRUPT TIMER 0
+        MOV P2, #00H
+        SETB TR1                        ;start timer1
+        SETB TR0                        ;start timer0
+
+
+HERE:
+        MOV DPTR, #NAME
+LOOP:
+        CLR A
+        MOVC A, @A+DPTR
+        JZ HERE
+        ACALL TRANS
+        INC DPTR
+        JMP LOOP
+
+TRANS:
+        MOV SBUF, A
+WAIT: 
+        JNB TI,WAIT
+        CLR TI
+        RET
+
+
+
+TIMER0:
+
+        CLR TR0
+        MOV TH0, #A5H
+        MOV TL0, #0FFH                   ; 65535-23040 == A5FF H
+        PUSH ACC
+        JNB RI, EXIT
+CHECK:
+        CLR P2.0
+        MOV A, SBUF
+        MOV P1, A
+        CLR RI
+FIRSTCHECK1:
+        CJNE A, #'A', SECONDCHECK1
+        MOV R0, #1D
+        CLR R1
+        JMP EXIT
+SECONDCHECK1:
+        CJNE A, #'a', FIRSTCHECK2
+        MOV R0, #1D
+        CLR R1
+        JMP EXIT
+FIRSTCHECK2:
+        CJNE A, #'M', SECONDCHECK2
+        MOV R0, #1D
+        CLR R1
+        JMP EXIT
+SECONDCHECK2:
+        CJNE A, #'m', INVALID
+        MOV R0, #1D
+        CLR R1
+        JMP EXIT
+INVALID:
+        MOV R0, #0D
+
+EXIT:
+        MOV A, R0
+        JZ EXIT1
+
+
+LEDCHECK1:   
+        MOV A, R1
+        JNZ LEDCHECK2
+        CPL P2.0
+LEDCHECK2:
+        INC A
+        CJNE A, #16D, LEDCHECK3
+        CLR A
+LEDCHECK3: 
+        MOV R1, A
+        
+EXIT1: 
+        POP ACC
+        SETB TR0   
+RETI
+
+
+
+NAME:    DB 'Amir Marshal, Mehran Montazer, ',0
+
+
+
+LOOK_UP:                        ; hexadecimal encodings for displaying the digits 0 to F
+        DB 3FH                  ; 0
+        DB 06H                  ; 1
+        DB 5BH                  ; 2
+        DB 4FH                  ; 3
+        DB 66H                  ; 4
+        DB 6DH                  ; 5
+        DB 7DH                  ; 6
+        DB 07H                  ; 7
+        DB 0FFH                 ; 8
+        DB 6FH                  ; 9
+        DB 77H                  ; A
+        DB 7CH                  ; B
+        DB 39H                  ; C
+        DB 5EH                  ; D
+        DB 79H                  ; E
+        DB 71H                  ; F
+        DB 00H                  ; NaN
+
+END
