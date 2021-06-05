@@ -9,10 +9,10 @@ ORG 100
 MAIN:
         MOV TMOD,#00100001B             ;TIMER 1 MODE 2, TIMER 0 MODE 1
         MOV TH1,#-3                     ;9600 BAUD
-        MOV TH0, #A5H
+        MOV TH0, #0A5H
         MOV TL0, #0FFH                   ; 65535-23040 == A5FF H
         MOV SCON,#50H                   ;REN enable, MODE 1
-        MOV R0 , #0H
+        MOV R0, #0H
         MOV IE, #10000010B              ; INTERRUPT TIMER 0
         MOV P2, #00H
         SETB TR1                        ;start timer1
@@ -41,7 +41,7 @@ WAIT:
 TIMER0:
 
         CLR TR0
-        MOV TH0, #A5H
+        MOV TH0, #0A5H
         MOV TL0, #0FFH                   ; 65535-23040 == A5FF H
         PUSH ACC
         JNB RI, EXIT
@@ -53,22 +53,22 @@ CHECK:
 FIRSTCHECK1:
         CJNE A, #'A', SECONDCHECK1
         MOV R0, #1D
-        CLR R1
+        MOV R1,#0
         JMP EXIT
 SECONDCHECK1:
         CJNE A, #'a', FIRSTCHECK2
         MOV R0, #1D
-        CLR R1
+        MOV R1,#0
         JMP EXIT
 FIRSTCHECK2:
         CJNE A, #'M', SECONDCHECK2
         MOV R0, #1D
-        CLR R1
+        MOV R1,#0
         JMP EXIT
 SECONDCHECK2:
         CJNE A, #'m', INVALID
         MOV R0, #1D
-        CLR R1
+        MOV R1,#0
         JMP EXIT
 INVALID:
         MOV R0, #0D

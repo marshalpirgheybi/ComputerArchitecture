@@ -1,0 +1,121 @@
+8051 Assembler           Version 1.00   06/05/121 22:35:15    Page 1
+M:\University\Semester 4\Computer Architecture\LAB\Verilog\ComputerArchitecture-1\LAB8\Question1\Code\Q4.A51
+
+
+
+    1 0000              EN      EQU     P3.3    ;P0.3 = EN
+    2 0000              RW      EQU     P3.2    ;P0.2 = RW
+    3 0000              RS      EQU     P3.1    ;P0.1 = RS
+    4 0000              
+    5 0000              ORG 00H
+    6 0000 7800         MOV     R0,#0 ;REGISTER FOR COUNTER
+    7 0002 9003E8       MOV     DPTR,#1000 ;BEGINNING OF A STRING
+    8 0005 12000E       CALL    LCD_INIT
+    9 0008 120023       CALL    STRING_DISP
+   10 000B 02000B       STOP:   JMP     STOP     
+   11 000E              
+   12 000E              LCD_INIT:
+   13 000E 7438                 MOV     A,#38H
+   14 0010 12004A               CALL    CMD
+   15 0013 740E                 MOV     A,#0EH  ;DISP ON, CURSOR OFF
+   16 0015 12004A               CALL    CMD
+   17 0018 7401                 MOV     A,#01H  ;CLEAR DISPLAY
+   18 001A 12004A               CALL    CMD
+   19 001D 740C                 MOV     A,#0CH
+   20 001F 12004A               CALL    CMD
+   21 0022 22                   RET
+   22 0023              
+   23 0023              STRING_DISP:    
+   24 0023                      LOOP:
+   25 0023 7400                 MOV     A,#0
+   26 0025 93                   MOVC    A,@A+DPTR
+   27 0026 6013                 JZ      DONE
+   28 0028 F5A0                 MOV     P2,A
+   29 002A 12003C               CALL    DATA
+   30 002D A3                   INC     DPTR
+   31 002E 08                   INC     R0
+   32 002F 120058               CALL    Display_Delay
+   33 0032 B80403               CJNE    R0,#4,END_OF_LOOP
+   34 0035 120063               CALL    CLEAR_SCR
+   35 0038              END_OF_LOOP:
+   36 0038 020023               JMP     LOOP
+   37 003B              DONE:
+   38 003B 22                   RET
+   39 003C              
+   40 003C              DATA:
+   41 003C 120058               CALL    Display_Delay
+   42 003F F5A0                 MOV     P2,A    ;DATA
+   43 0041 D2B1                 SETB    RS      ;DATA
+   44 0043 C2B2                 CLR     RW      ;WRITE
+   45 0045 D2B3                 SETB    EN
+   46 0047 C2B3                 CLR     EN
+   47 0049 22                   RET
+   48 004A              CMD:
+   49 004A 120058               CALL    Display_Delay
+   50 004D F5A0                 MOV     P2,A    ;COMMAND
+   51 004F C2B1                 CLR    RS      ;COMMAND
+   52 0051 C2B2                 CLR     RW      ;WRITE
+   53 0053 D2B3                 SETB    EN
+   54 0055 C2B3                 CLR     EN
+   55 0057 22                   RET
+   56 0058              Display_Delay:
+   57 0058 7DFA                 MOV R5, #250
+8051 Assembler           Version 1.00   06/05/121 22:35:15    Page 2
+M:\University\Semester 4\Computer Architecture\LAB\Verilog\ComputerArchitecture-1\LAB8\Question1\Code\Q4.A51
+
+
+
+   58 005A 7CFA                 AGAIN: MOV R4,#250
+   59 005C                      HERE:
+   60 005C 00                       NOP
+   61 005D 00                       NOP
+   62 005E DCFC                     DJNZ R4, HERE
+   63 0060 DDF8                     DJNZ R5, AGAIN
+   64 0062 22                       RET
+   65 0063              
+   66 0063              CLEAR_SCR:
+   67 0063 7401                 MOV     A,#01H  ;CLEAR DISPLAY
+   68 0065 12004A               CALL    CMD
+   69 0068 120058               CALL    Display_Delay
+   70 006B 7402                 MOV     A,#02H  ;CLEAR DISPLAY
+   71 006D 12004A               CALL    CMD
+   72 0070 120058               CALL    Display_Delay
+   73 0073 7800                 MOV     R0,#0   ;RESET THE COUNTER
+   74 0075 22                   RET
+   75 0076              ;STRING
+   76 03E8              ORG     1000
+   77 03E8 41 4D 49          DB      'AMIRMOHAMMAD MARSHAL PIRGHEYBI_MEHRAN MONTAZER',0    
+      03EB 52 4D 4F
+      03EE 48 41 4D
+      03F1 4D 41 44
+      03F4 20 4D 41
+      03F7 52 53 48
+      03FA 41 4C 20
+      03FD 50 49 52
+      0400 47 48 45
+      0403 59 42 49
+      0406 5F 4D 45
+      0409 48 52 41
+      040C 4E 20 4D
+      040F 4F 4E 54
+      0412 41 5A 45
+      0415 52 00
+
+Defined Symbols:
+  EN                                        0000B3  179
+  RS                                        0000B1  177
+  RW                                        0000B2  178
+
+Defined Labels:
+  AGAIN                                     00005A  90
+  CLEAR_SCR                                 000063  99
+  CMD                                       00004A  74
+  DATA                                      00003C  60
+  Display_Delay                             000058  88
+  DONE                                      00003B  59
+  END_OF_LOOP                               000038  56
+  HERE                                      00005C  92
+  LCD_INIT                                  00000E  14
+  LOOP                                      000023  35
+  STOP                                      00000B  11
+  STRING_DISP                               000023  35
