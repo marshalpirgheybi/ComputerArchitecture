@@ -52,22 +52,22 @@ CHECK:
         CLR RI
 FIRSTCHECK1:
         CJNE A, #'A', SECONDCHECK1
-        MOV R0, #1D
+        MOV R0, #1
         CLR R1
         JMP EXIT
 SECONDCHECK1:
         CJNE A, #'a', FIRSTCHECK2
-        MOV R0, #1D
+        MOV R0, #1
         CLR R1
         JMP EXIT
 FIRSTCHECK2:
         CJNE A, #'M', SECONDCHECK2
-        MOV R0, #1D
+        MOV R0, #1
         CLR R1
         JMP EXIT
 SECONDCHECK2:
         CJNE A, #'m', INVALID
-        MOV R0, #1D
+        MOV R0, #1
         CLR R1
         JMP EXIT
 INVALID:
